@@ -1,5 +1,5 @@
 **Setup**
-* Clone the repo with `go get github.com/johnnymo87/assembler`
+* Clone the repo with `go get github.com/johnnymo87/vm_translator`
 * Compile it by running `go build` in the app root directory
 * Run the tests with `ginkgo -r`
 * Translate a file to binary with `./vm_translator -filename=data/StackArithmetic/SimpleAdd.vm
