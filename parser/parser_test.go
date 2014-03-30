@@ -6,6 +6,9 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("Parser", func() {
-
+var _ = Describe("IO", func() {
+	var lines = ReadLines("../data/StackArithmetic/SimpleAdd/SimpleAdd.vm")
+	It("Parses 3 commands from SimpleAdd.vm", func() {
+		Ω(len(Parse(lines))).Should(Equal(3))
+	})
 })
