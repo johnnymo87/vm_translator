@@ -16,7 +16,7 @@ func Translate(lines []string) []string {
 		case "ARITHMETIC":
 			asm_lines = append(asm_lines, WriteArithmetic(line)...)
 		case "LOGICAL":
-			break
+			asm_lines = append(asm_lines, WriteLogic(line)...)
 		case "PUSHPOP":
 			asm_lines = append(asm_lines, WritePushPop(line)...)
 		default:
@@ -24,7 +24,7 @@ func Translate(lines []string) []string {
 			panic(line)
 		}
 	}
-	return asm_lines
+	return append(asm_lines, Finally()...)
 }
 
 func WritePushPop(command string) []string {
@@ -48,13 +48,60 @@ func WritePushPop(command string) []string {
 func WriteArithmetic(command string) []string {
 	switch command {
 	case "add":
-		return []string{"@SP", "M=M-1", "A=M", "D=M", "@SP", "M=M-1", "A=M", "D=D+M", "@SP", "A=M", "M=D", "@SP", "M=M+1"}
+		return append(PopTwo(), "D=D+M")
 	case "sub":
-		return []string{"@SP", "M=M-1", "A=M", "D=M", "@SP", "M=M-1", "A=M", "D=D-M", "@SP", "A=M", "M=D", "@SP", "M=M+1"}
+		return append(PopTwo(), "D=D-M")
 	case "neg":
-		return []string{"@SP", "M=M-1", "A=M", "D=M", "@0", "D=A-D", "@SP", "A=M", "M=D", "@SP", "M=M+1"}
+		return append(PopOne(), []string{"@0", "D=A-D"}...)
 	default:
 		fmt.Println("Command '%v' is not a valid ARITHMETIC command\n", command)
 		panic(command)
 	}
+}
+
+func WriteLogic(command string) []string {
+	base := []string{"D=D-M", "@TRUE", "", "@FALSE", "0;JMP", "(TRUE)", "@-1", "D=A", "@END", "0;JMP", "(FALSE)", "@0", "D=A"}
+	switch command {
+	case "eq":
+		base[2] = "D;JEQ"
+		return base
+	case "lt":
+		base[2] = "D;JGT"
+		return base
+	case "gt":
+		base[2] = "D;JLT"
+		return base
+	default:
+		fmt.Println("Command '%v' is not a valid LOGICAL command\n", command)
+		panic(command)
+	}
+}
+
+func WriteBitWise(command string) []string {
+	switch command {
+	case "and":
+		return append(PopTwo(), "D=D&A")
+	case "or":
+		return append(PopTwo(), "D=D|A")
+	case "not":
+		return append(PopOne(), "D=!D")
+	default:
+		fmt.Println("Command '%v' is not a valid LOGICAL command\n", command)
+		panic(command)
+	}
+}
+
+// Pop one to D
+func PopOne() []string {
+	return []string{"@SP", "M=M-1", "A=M", "D=M"}
+}
+
+// Pop one to D, then one to M
+func PopTwo() []string {
+	return []string{"@SP", "M=M-1", "A=M", "D=M", "@SP", "M=M-1", "A=M"}
+}
+
+// Push D to stack, increment pointer
+func Finally() []string {
+	return []string{"@END", "0;JMP", "(END)", "@SP", "A=M", "M=D", "@SP", "M=M+1"}
 }

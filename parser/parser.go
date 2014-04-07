@@ -37,12 +37,15 @@ func stringInSlice(a string, list []string) bool {
 
 func Type(command string) (string, error) {
 	arithmetic := []string{"add", "sub", "neg"}
-	logical := []string{"eq", "gt", "lt", "and", "or", "not"}
+	logical := []string{"eq", "gt", "lt"}
+	bitwise := []string{"and", "or", "not"}
 	switch {
 	case stringInSlice(command, arithmetic):
 		return "ARITHMETIC", nil
 	case stringInSlice(command, logical):
 		return "LOGICAL", nil
+	case stringInSlice(command, bitwise):
+		return "BITWISE", nil
 	case pushpop.MatchString(command):
 		return "PUSHPOP", nil
 	default:
